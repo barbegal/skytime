@@ -16,17 +16,18 @@ var download = function(url, dest, cb) {
 };
 
 //for 0>16 slices
-//for a bunch of daters thanks moment
+//for a bunch of dates thanks moment
+
 var prefix = 'https://spaceneedledev.com/panocam/assets/';
 var url = 'https://spaceneedledev.com/panocam/assets/2018/08/22/2018_0822_073000/slice1.jpg';
 var post = '2018/08/22/2018_0822_073000/';
 var file = 'slice';
 var des = '/files/';
 var type = '.jpg';
-if (!fs.existsSync(des+post))fs.mkdirSync(des+post);
-//download(url,des+post,
 
-//2018/08/22/2018_0822_073000/slice16.jpg
+if (!fs.existsSync(des+post)) fs.mkdirSync(des+post);
+download(url,des+post);
+
 
 var app = express();
 const port = 3000;
