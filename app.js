@@ -3,9 +3,9 @@ var moment = require('moment'); //datetime
 var express = require('express'); //server
 var https = require('https'); //request
 var reload = require('reload') // reload server
-var sharp = require('sharp'); // jpg compositing!
-var SunCalc = require('suncalc'); // sunrise times
-var blend = require('blend');// measure images 
+//var sharp = require('sharp'); // jpg compositing!
+//var SunCalc = require('suncalc'); // sunrise times
+var mergeImg = require('merge-img');// measure images 
 
 var prefix = 'https://spaceneedledev.com/panocam/assets/';
 var url = 'https://spaceneedledev.com/panocam/assets/2018/08/22/2018_0822_073000/slice1.jpg';
@@ -48,33 +48,26 @@ async function send() {
         var location = des+time+'-'+n+type;
         if (!(fs.existsSync(location))){
           download(url, location);
-          await wait(4000);
+          await wait(3000);
+          console.log(location)
         }
         if (fs.existsSync(location)) {
-          var d = sizeOf(location);
-          fs.readFile(location, (err,data)=>{
-            console.log(data);
-            var obj = {buffer: data,x:x,y:0};
-            x += d.width;
-            merge.push(obj);
-          });
+          //var d = sizeOf(location);
+          //x += d.width;
+          merge.push(location);
         }
       }
       if (merge.length === 17){
         var target = des+time+type;
-        //console.log(target);
-        //console.log(merge);
         if (!(fs.existsSync(target))){
-          blend(merge, function(err, data) {
-            console.log(data);
-            // result contains the blended result image compressed as JPEG.
-         });
-        }
+          console.log(target);
+          // result contains the blended result image compressed as JPEG.
+         };
       }
     }
+  }
     //var times = SunCalc.getTimes(new Date(), 51.5, -0.1);
     //var sunriseStr = times.sunrise.getHours() + ':' + times.sunrise.getMinutes();
-  }
 }
 
 send()
