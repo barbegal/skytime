@@ -3,7 +3,6 @@ var moment = require('moment'); //datetime
 var express = require('express'); //server
 var https = require('https'); //request
 var reload = require('reload') // reload server
-//var sharp = require('sharp'); // jpg compositing!
 //var SunCalc = require('suncalc'); // sunrise times
 var mergeImg = require('merge-img');// measure images 
 
@@ -37,37 +36,46 @@ function wait(milleseconds) {
 }
 
 async function send() {
-  for (var i = 10; i<18; i++){
+  for (var i = 6; i<22; i++){
     var hour = (i<10)?'0'+i:i; 
     for (var t = 0; t<6;t++){
       var time = hour+''+t+'000';
       var merge = [];
-      var x = 0;
-      for (var n = 0;n<17;n++){
-        var url = prefix+date+time+filename+n+type;
-        var location = des+time+'-'+n+type;
-        if (!(fs.existsSync(location))){
-          download(url, location);
-          await wait(3000);
-          console.log(location)
+      //if exists target... then list and delete asset
+      var target = des+time+type;
+      if (!(fs.existsSync(target))){
+        console.log('trying '+target);
+        for (var n = 0;n<17;n++){
+          var url = prefix+date+time+filename+n+type;
+          var location = des+time+'-'+n+type;
+          if (!(fs.existsSync(location))){
+            download(url, location);
+            console.log(location);
+            await wait(500);
+          }
+          if (fs.existsSync(location)) {
+            merge.push(location);
+          }
         }
-        if (fs.existsSync(location)) {
-          //var d = sizeOf(location);
-          //x += d.width;
-          merge.push(location);
+        if (merge.length > 16){
+          try {
+            let img = await mergeImg(merge);
+          img.write(target);
+          } catch(err) {
+            console.log(err);
+          }
         }
-      }
-      if (merge.length === 17){
-        var target = des+time+type;
-        if (!(fs.existsSync(target))){
-          console.log(target);
-          // result contains the blended result image compressed as JPEG.
-         };
+      } 
+      if (fs.existsSync(target)){//exists, so delete merge locations
+        for (var n = 0;n<17;n++){
+          var location = des+time+'-'+n+type;
+          if (fs.existsSync(location)) fs.unlinkSync(location);
+        }
       }
     }
   }
-    //var times = SunCalc.getTimes(new Date(), 51.5, -0.1);
-    //var sunriseStr = times.sunrise.getHours() + ':' + times.sunrise.getMinutes();
+  //var times = SunCalc.getTimes(new Date(), 51.5, -0.1);
+  //var sunriseStr = times.sunrise.getHours() + ':' + times.sunrise.getMinutes();
 }
 
 send()
@@ -76,7 +84,7 @@ var app = express();
 const port = 3000;
 
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+  res.send('to do: open client react-app');
 })
  
 reload(app);
